@@ -1,0 +1,90 @@
+#include <iostream>
+#include <windows.h>
+#include <stdio.h>
+
+#pragma comment(lib, "ws2_32.lib")
+
+using namespace std;
+
+SOCKET sock; //My main socket
+SOCKET sock2[200]; //Socket from clients
+SOCKADDR_IN i_sock2; //Info about sock2
+SOCKADDR_IN i_sock; //Info about main sock
+WSADATA Data; //Socket version control
+int clients = 0;
+
+int startServer(int Port) {
+	
+	int err;
+
+	WSAStartup(MAKEWORD(2,2), &Data); //Initializing socket, Choosing version, &Data = Save socket version
+	sock = socket(AF_INET, SOCK_STREAM, 0); //AF_INET = Addres family (IPv4), 0 = Choosing protocol (0 = NULL)
+
+	if(sock == INVALID_SOCKET) {
+	
+		Sleep(4000);
+		exit(0);
+		return 0; 
+	}
+
+	i_sock.sin_family = AF_INET; //Address family specification, AF_INET = IPv4 
+	i_sock.sin_addr.s_addr = htonl(INADDR_ANY); //Start the server at my IP
+	i_sock.sin_port = htons(Port); //Specify our server's port
+
+	err = bind(sock, (LPSOCKADDR)&i_sock, sizeof(i_sock)); 
+
+	if(err != 0)
+		return 0;
+
+	err = listen(sock, 2); //2 = maximum clients supported
+
+	if(err == SOCKET_ERROR)
+		return 0;
+
+	while(true) {
+	
+		for(int i = 0; i < 4; i++) {
+		
+			if(clients < 4) {
+			
+				int so2len = sizeof(i_sock2); //Size of informations about the client (IP address, etc.)
+				sock2[clients] = accept(sock, (sockaddr *)&i_sock2, &so2len); //Accept incoming connection, with client information stored in '(sockaddr *)&i_sock2' and '&so2len'
+
+				if(sock2[clients] == INVALID_SOCKET)
+					return 0;
+
+				cout << "Client has joined the server (IP : " << i_sock2.sin_addr.s_addr << " )" << endl;
+				clients++;
+				continue;
+			}
+
+			else
+				break;
+		}
+	}
+
+	return 1;
+}
+
+int send(char *Buf, int len, int client) { //int len = size of data that will be sent to the Buf, int client = 
+
+	int slen = send(sock2[client], Buf, len, 0);
+
+	if(slen < 0) {
+	
+		cout << "Cannot send data!" << endl;
+		return 1;
+	}
+
+	return slen;
+}
+
+int main() {
+
+	cout << "Still working!" << endl;
+	
+	getchar();
+	getchar();
+
+	return 0;
+}
