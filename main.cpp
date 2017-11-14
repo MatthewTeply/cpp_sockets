@@ -2,6 +2,8 @@
 #include <windows.h>
 #include <stdio.h>
 
+#include "packet.h";
+
 #pragma comment(lib, "ws2_32.lib")
 
 using namespace std;
@@ -79,12 +81,50 @@ int send(char *Buf, int len, int client) { //int len = size of data that will be
 	return slen; //Return the length of the sent data, in bytes
 }
 
-int Recieve(char *Buf, int len, int client) { //Buf = data, len = data length, client = client ID
+int recieve(char *Buf, int len, int client) { //Buf = data, len = data length, client = client ID
 
+	int slen = recv(sock2[client], Buf, len, 0); //Length of recieved data
+
+	if(len < 0) {
 	
+		cout << "Cannot send data!" << endl;
+		return 1;
+	}
+
+	return slen; //Return length of the recieved data
+}
+
+int endSocket() {
+
+	closesocket(sock);
+	WSACleanup();
+	return 1;
 }
 
 int main() {
+
+	startServer(3000);
+
+	//Send to client with ID 1
+	//MyPacket packet;
+	//send((char *)&packet, sizeof(packet), 1);
+	
+	//Recieve from client with ID 1
+	//recieve((char *)&packet, sizeof(packet), 1);
+
+	//Send to all clients
+	/*for(int i = 0; i < 4; i++) {
+	
+		MyPacket packet;
+		send((char *)&packet, sizeof(packet), i);
+	}*/
+
+	//Receive from all clients
+	/*for(int i = 0; i < 4; i++) {
+	
+		MyPacket packet;
+		recieve((char *)&packet, sizeof(packet), i);
+	}*/
 
 	cout << "Still working!" << endl;
 	
